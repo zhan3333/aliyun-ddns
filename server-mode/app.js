@@ -8,13 +8,18 @@ const config = require('./config.json');
 // 以上 example.com 为域名，xxx.xxx.xxx 为子域名
 // ip 如果在 query string 中出现, 则设定为该 ip, 否则设定为访问客户端的 ip
 const getTarget = req => {
-  return {
-    hostname: url.parse(req.url, true).query.hostname,
-    ip: url.parse(req.url, true).query.ip
+  let hostname = url.parse(req.url, true).query.hostname;
+  let ip = url.parse(req.url, true).query.ip
       || req.headers[config.clientIpHeader.toLowerCase()]
       || req.connection.remoteAddress
       || req.socket.remoteAddress
-      || req.connection.socket.remoteAddress
+      || req.connection.socket.remoteAddress;
+  if (ip.indexOf('::ffff:') !== -1) {
+    ip = ip.substring(7);
+  }
+  return {
+    hostname,
+    ip
   };
 };
 
